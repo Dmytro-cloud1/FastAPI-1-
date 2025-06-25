@@ -63,47 +63,47 @@ unknownAliens = [{
   "registered_date": 2025,
   "visited_planet": ["Neptune", "Mars"]
 }]
-# class Post(BaseModel):
-#     id: int
-#     title: str
-#     body: str
+class Post(BaseModel):
+    id: int
+    title: str
+    body: str
 
-# posts = [
-#     {'id':1, 'title':'News1', 'body': 'Test1'},
-#     {'id':2, 'title':'News2', 'body': 'Test2'},
-#     {'id':3, 'title':'News3', 'body': 'Test3'}
-# ]
-
-
-# @app.get("/")
-# async def items() -> int:
-#     return 100
-
-# @app.get("/items")
-# async def items() -> list[Post]:
-#     return posts
-
-# @app.get("/items/{id}")
-# async def items(id:int) -> dict:
-#     for post in posts:
-#         if post["id"] == id:
-#             return post
-
-#     raise HTTPException(status_code=404, detail="This Post not found")
+posts = [
+    {'id':1, 'title':'News1', 'body': 'Test1'},
+    {'id':2, 'title':'News2', 'body': 'Test2'},
+    {'id':3, 'title':'News3', 'body': 'Test3'}
+]
 
 
-# @app.post("/create_item/")
-# async def create_item(post:Post) -> int:
-#     print(post.title)
-#     return 200
+@app.get("/")
+async def items() -> int:
+    return 100
 
-# @app.get("/password/{abc}")
-# def create_password(abc:int):
-#     passw = choices(ascii_letters, k=abc)
-#     if len(passw) >= 8:
-#         return "Password is longer than 8 items"
+@app.get("/items")
+async def items() -> list[Post]:
+    return posts
+
+@app.get("/items/{id}")
+async def items(id:int) -> dict:
+    for post in posts:
+        if post["id"] == id:
+            return post
+
+    raise HTTPException(status_code=404, detail="This Post not found")
+
+
+@app.post("/create_item/")
+async def create_item(post:Post) -> int:
+    print(post.title)
+    return 200
+
+@app.get("/password/{abc}")
+def create_password(abc:int):
+    passw = choices(ascii_letters, k=abc)
+    if len(passw) >= 8:
+        return "Password is longer than 8 items"
     
-#     return passw
+    return passw
 
 
 #ALIENS AND PLANETS
