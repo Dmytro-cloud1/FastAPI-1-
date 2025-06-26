@@ -58,12 +58,6 @@ class UnknownAlien(BaseModel):
     visited_planet: List[str]
 
 
-# unknownAliens = [{
-#   "name": "Blorg-7",
-#   "age": 150,
-#   "registered_date": 2025,
-#   "visited_planet": ["Neptune", "Mars"]
-# }]
 class Post(BaseModel):
     id: int
     title: str
@@ -129,3 +123,5 @@ def get_planet(planet):
 @app.post("/get-unknown-alien/")
 def get_unknown_alien(alien_query: UnknownAlien = Body(...)):
     return[get_planet(aliens_planets) for aliens_planets in alien_query.visited_planet]
+
+# Из unknownalien создать обычного alien без потери данных(если на сервер приходит новый запрос )
