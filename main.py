@@ -43,6 +43,7 @@ planet_jupiter = Planet("Jupiter", "365 million miles", True)
 planet_saturn = Planet("Saturn", "746 million miles", False)
 planet_mercury = Planet("Mercury", "48 million miles", True)
 
+all_planets = [planet_jupiter, planet_saturn, planet_mercury]
 
 aliens = [
     Alien('Krellax-9', 110, [planet_jupiter, planet_mercury], 1900),
@@ -57,12 +58,12 @@ class UnknownAlien(BaseModel):
     visited_planet: List[str]
 
 
-unknownAliens = [{
-  "name": "Blorg-7",
-  "age": 150,
-  "registered_date": 2025,
-  "visited_planet": ["Neptune", "Mars"]
-}]
+# unknownAliens = [{
+#   "name": "Blorg-7",
+#   "age": 150,
+#   "registered_date": 2025,
+#   "visited_planet": ["Neptune", "Mars"]
+# }]
 class Post(BaseModel):
     id: int
     title: str
@@ -120,10 +121,11 @@ def get_alien(alien_name:str):
     raise HTTPException(status_code=404, detail="This Post not found")
 
 
+def get_planet(planet):
+    for all_planet in all_planets:
+        if all_planet.name == planet:
+            return all_planet
+        
 @app.post("/get-unknown-alien/")
 def get_unknown_alien(alien_query: UnknownAlien = Body(...)):
-    for alien in unknownAliens:
-        if alien["name"] == alien_query.name:
-            return alien
-    
-    raise HTTPException(status_code=404, detail="Alien not found")
+    return[get_planet(aliens_planets) for aliens_planets in alien_query.visited_planet]
