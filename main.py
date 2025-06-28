@@ -4,12 +4,19 @@ from random import choices
 from string import ascii_letters
 from typing import List
 from fastapi import Body
+from abc import ABC, abstractmethod
+
 
 app = FastAPI()
 
 #ALIENS AND PLANETS
+class SpaceObject(ABC):
+    @abstractmethod
+    def to_dict() -> dict:
+        pass
 
-class Planet:
+
+class Planet(SpaceObject):
     def __init__(self, name:str, distance_to_Eath: str, is_legal: bool):
         self.name = name
         self.distance_to_Eath = distance_to_Eath
@@ -23,7 +30,7 @@ class Planet:
         }
 
 
-class Alien:
+class Alien(SpaceObject):
     def __init__(self, name:str, age:int, visited_planets: List[Planet], registered_date: int):
         self.name = name
         self.age = age
@@ -58,39 +65,39 @@ class UnknownAlien(BaseModel):
     visited_planet: List[str]
 
 
-class Post(BaseModel):
-    id: int
-    title: str
-    body: str
+# class Post(BaseModel):
+#     id: int
+#     title: str
+#     body: str
 
-posts = [
-    {'id':1, 'title':'News1', 'body': 'Test1'},
-    {'id':2, 'title':'News2', 'body': 'Test2'},
-    {'id':3, 'title':'News3', 'body': 'Test3'}
-]
-
-
-@app.get("/")
-async def items() -> int:
-    return 100
-
-@app.get("/items")
-async def items() -> list[Post]:
-    return posts
-
-@app.get("/items/{id}")
-async def items(id:int) -> dict:
-    for post in posts:
-        if post["id"] == id:
-            return post
-
-    raise HTTPException(status_code=404, detail="This Post not found")
+# posts = [
+#     {'id':1, 'title':'News1', 'body': 'Test1'},
+#     {'id':2, 'title':'News2', 'body': 'Test2'},
+#     {'id':3, 'title':'News3', 'body': 'Test3'}
+# ]
 
 
-@app.post("/create_item/")
-async def create_item(post:Post) -> int:
-    print(post.title)
-    return 200
+# @app.get("/")
+# async def items() -> int:
+#     return 100
+
+# @app.get("/items")
+# async def items() -> list[Post]:
+#     return posts
+
+# @app.get("/items/{id}")
+# async def items(id:int) -> dict:
+#     for post in posts:
+#         if post["id"] == id:
+#             return post
+
+#     raise HTTPException(status_code=404, detail="This Post not found")
+
+
+# @app.post("/create_item/")
+# async def create_item(post:Post) -> int:
+#     print(post.title)
+#     return 200
 
 @app.get("/password/{abc}")
 def create_password(abc:int):
@@ -122,6 +129,19 @@ def get_planet(planet):
         
 @app.post("/get-unknown-alien/")
 def get_unknown_alien(alien_query: UnknownAlien = Body(...)):
-    return[get_planet(aliens_planets) for aliens_planets in alien_query.visited_planet]
+    visited_planets = [get_planet(aliens_planets) for aliens_planets in alien_query.visited_planet]
 
+    new_alien = Alien(
+        name = alien_query.name,
+        age = alien_query.age,
+        visited_planets= visited_planets,
+        registered_date= alien_query.registered_date
+    )
+
+    aliens.append(new_alien)
+
+    return {
+        "message": "New alien are created",
+        "New alien": new_alien.to_dict()
+    }
 # Из unknownalien создать обычного alien без потери данных(если на сервер приходит новый запрос )
