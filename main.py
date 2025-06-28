@@ -64,50 +64,6 @@ class UnknownAlien(BaseModel):
     registered_date: int
     visited_planet: List[str]
 
-
-# class Post(BaseModel):
-#     id: int
-#     title: str
-#     body: str
-
-# posts = [
-#     {'id':1, 'title':'News1', 'body': 'Test1'},
-#     {'id':2, 'title':'News2', 'body': 'Test2'},
-#     {'id':3, 'title':'News3', 'body': 'Test3'}
-# ]
-
-
-# @app.get("/")
-# async def items() -> int:
-#     return 100
-
-# @app.get("/items")
-# async def items() -> list[Post]:
-#     return posts
-
-# @app.get("/items/{id}")
-# async def items(id:int) -> dict:
-#     for post in posts:
-#         if post["id"] == id:
-#             return post
-
-#     raise HTTPException(status_code=404, detail="This Post not found")
-
-
-# @app.post("/create_item/")
-# async def create_item(post:Post) -> int:
-#     print(post.title)
-#     return 200
-
-@app.get("/password/{abc}")
-def create_password(abc:int):
-    passw = choices(ascii_letters, k=abc)
-    if len(passw) >= 8:
-        return "Password is longer than 8 items"
-    
-    return passw
-
-
 #ALIENS AND PLANETS
 @app.get("/get-all-aliens/")
 def get_all_aliens():
@@ -144,4 +100,5 @@ def get_unknown_alien(alien_query: UnknownAlien = Body(...)):
         "message": "New alien are created",
         "New alien": new_alien.to_dict()
     }
-# Из unknownalien создать обычного alien без потери данных(если на сервер приходит новый запрос )
+
+
