@@ -1,85 +1,61 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from random import choices
-from string import ascii_letters
-from typing import List
-from fastapi import Body
-from abc import ABC, abstractmethod
-
+from fastapi import FastAPI, HTTPException, Body
+from models import Planet, Alien, UnknownAlien, PlanetModel, PlanetLegalModel
 
 app = FastAPI()
 
-#ALIENS AND PLANETS
-class SpaceObject(ABC):
-    @abstractmethod
-    def to_dict() -> dict:
-        pass
+class MigrationService:
 
+    all_planets = []
+    aliens = []
 
-class Planet(SpaceObject):
-    def __init__(self, name:str, distance_to_Eath: str, is_legal: bool):
-        self.name = name
-        self.distance_to_Eath = distance_to_Eath
-        self.is_legal = is_legal
+    @classmethod
+    def get_info(cls):
+        planet_jupiter = Planet("Jupiter", "365 million miles", True)
+        planet_saturn = Planet("Saturn", "746 million miles", False)
+        planet_mercury = Planet("Mercury", "48 million miles", True)
+
+        cls.all_planets = [planet_jupiter, planet_saturn, planet_mercury]
+
+        cls.aliens = [
+            Alien('Krellax-9', 110, [planet_jupiter, planet_mercury], 1900),
+            Alien('Veluna Shikari', 200, [planet_jupiter, planet_mercury, planet_saturn], 1800),
+            Alien('Zorvak Treen', 400,  [planet_mercury, planet_saturn], 1600)
+        ]
+
+        return cls.all_planets, cls.aliens
     
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "distance_to_earth": self.distance_to_earth,
-            "is_legal": self.is_legal
-        }
+    @classmethod
+    def add_planet(cls, planet_model: PlanetLegalModel):
+        search_planet = list(filter(lambda p: p.name == planet_model.name, cls.all_planets))
 
+        if not search_planet:  
+            new_planet = Planet(
+                name = planet_model.name,
+                distance_to_Eath = planet_model.distance_to_Eath,
+                is_legal= False
+            )
 
-class Alien(SpaceObject):
-    def __init__(self, name:str, age:int, visited_planets: List[Planet], registered_date: int):
-        self.name = name
-        self.age = age
-        self.registered_date = registered_date
-        self.visited_planets = visited_planets
+            cls.all_planets.append(new_planet)
+            return new_planet
+        
 
-    def to_dict(self):
-        return{
-            "name": self.name,
-            "age": self.age,
-            "registered_date": self.registered_date,
-            "visited_planet": [planet.name for planet in self.visited_planets]
-        }
-
-
-planet_jupiter = Planet("Jupiter", "365 million miles", True)
-planet_saturn = Planet("Saturn", "746 million miles", False)
-planet_mercury = Planet("Mercury", "48 million miles", True)
-
-all_planets = [planet_jupiter, planet_saturn, planet_mercury]
-
-aliens = [
-    Alien('Krellax-9', 110, [planet_jupiter, planet_mercury], 1900),
-    Alien('Veluna Shikari', 200, [planet_jupiter, planet_mercury, planet_saturn], 1800),
-    Alien('Zorvak Treen', 400,  [planet_mercury, planet_saturn], 1600)
-]
-
-class UnknownAlien(BaseModel):
-    name:str
-    age: int
-    registered_date: int
-    visited_planet: List[str]
+        return True
 
 #ALIENS AND PLANETS
 @app.get("/get-all-aliens/")
 def get_all_aliens():
-    return [alien.to_dict() for alien in aliens]
+    return [alien.to_dict() for alien in MigrationService.aliens]
 
 @app.get("/get-alien/{alien_name}")
 def get_alien(alien_name:str):
-    for alien in aliens:
+    for alien in MigrationService.aliens:
         if alien.name == alien_name:
             return alien.to_dict()
         
     raise HTTPException(status_code=404, detail="This Post not found")
 
-
 def get_planet(planet):
-    for all_planet in all_planets:
+    for all_planet in MigrationService.all_planets:
         if all_planet.name == planet:
             return all_planet
         
@@ -94,11 +70,20 @@ def get_unknown_alien(alien_query: UnknownAlien = Body(...)):
         registered_date= alien_query.registered_date
     )
 
-    aliens.append(new_alien)
+    MigrationService.aliens.append(new_alien)
 
     return {
         "message": "New alien are created",
         "New alien": new_alien.to_dict()
     }
 
+@app.post("/register-planet/")
+def register_new_planet(planet_model: PlanetLegalModel = Body(...)):
+    return MigrationService.add_planet(planet_model)
 
+# @app.on_event("startup")
+# def startup_event():
+#     MigrationService.get_info()
+
+if __name__ == '__main__':
+    MigrationService.get_info()
