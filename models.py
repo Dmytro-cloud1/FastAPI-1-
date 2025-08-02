@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from pydantic import BaseModel
 from typing import List
+from dataclasses import dataclass
 
 
 #ALIENS AND PLANETS
@@ -9,12 +10,11 @@ class SpaceObject(ABC):
     def to_dict() -> dict:
         pass
 
-
+@dataclass
 class Planet(SpaceObject):
-    def __init__(self, name:str, distance_to_Eath: str, is_legal: bool):
-        self.name = name
-        self.distance_to_Eath = distance_to_Eath
-        self.is_legal = is_legal
+    name: str
+    distance_to_Eath: str
+    is_legal: bool
     
     def to_dict(self):
         return {
@@ -24,12 +24,12 @@ class Planet(SpaceObject):
         }
 
 
+@dataclass
 class Alien(SpaceObject):
-    def __init__(self, name:str, age:int, visited_planets: List[Planet], registered_date: int):
-        self.name = name
-        self.age = age
-        self.registered_date = registered_date
-        self.visited_planets = visited_planets
+    name:str 
+    age:int
+    visited_planets: List[Planet] 
+    registered_date: int
 
     def to_dict(self):
         return{
@@ -39,17 +39,11 @@ class Alien(SpaceObject):
             "visited_planet": [planet.name for planet in self.visited_planets]
         }
 
-
 class UnknownAlien(BaseModel):
     name:str
     age: int
     registered_date: int
     visited_planet: List[str]
-
-class PlanetModel(BaseModel):
-    name : str
-    distance_to_Eath: str
-    is_legal : bool
 
 class PlanetLegalModel(BaseModel):
     name: str

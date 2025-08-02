@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Body
-from models import Planet, Alien, UnknownAlien, PlanetModel, PlanetLegalModel
+from models import Planet, Alien, UnknownAlien, PlanetLegalModel
 
 app = FastAPI()
 
@@ -81,9 +81,10 @@ def get_unknown_alien(alien_query: UnknownAlien = Body(...)):
 def register_new_planet(planet_model: PlanetLegalModel = Body(...)):
     return MigrationService.add_planet(planet_model)
 
-# @app.on_event("startup")
-# def startup_event():
-#     MigrationService.get_info()
-
-if __name__ == '__main__':
+@app.on_event("startup")
+def startup_event():
     MigrationService.get_info()
+
+# if __name__ == '__main__':
+#     MigrationService.get_info()
+#     print("Hello")
